@@ -1,26 +1,6 @@
-'use client'
-import { useEffect, useState } from 'react';
 import '../styles/styles.global.scss'
 
-export default function Home() {
+import PageTemplate from './[slug]/page'
 
-  const [isMounted, setIsMounted] = useState(false);
+export default PageTemplate
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
-  console.log(isMounted)
-
-  return (
-    <>
-      <header className="header">header</header>
-      <main className="main">main</main>
-      <footer className="footer">footer</footer>
-    </>
-  );
-}

@@ -1,0 +1,39 @@
+// Responsive media mixins
+$padding: 1rem;
+$mobile: 48rem;
+$tablet: 62rem;
+$desktop: 90rem;
+
+@mixin tablet {
+  @media (min-width: #{$mobile + $padding}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$tablet + $padding}) {
+    @content;
+  }
+}
+
+// Hover mixin
+@mixin hover {
+  @media (hover: hover) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin descending-z-index($count: 10) {
+  $target: 0;
+  $index: $count;
+
+  @while $index > 0 {
+    &:nth-child(#{$target}) {
+      z-index: #{$index};
+    }
+    $target: $target + 1;
+    $index: $index - 1;
+  }
+}

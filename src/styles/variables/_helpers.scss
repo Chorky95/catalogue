@@ -1,0 +1,43 @@
+@use './mixins' as *;
+
+.no-scroll {
+	overflow: hidden;
+}
+
+.blurred {
+	&::before {
+		position: fixed;
+		width: 100vw;
+		height: 100vh;
+		top: 0;
+		left: 0;
+		content: '';
+		background: #000;
+		opacity: 0.8;
+		z-index: 1000000;
+	}
+}
+
+.hidden {
+	opacity: 0;
+}
+
+.col-no-padd {
+	padding: 0;
+}
+
+.spacing-tablet {
+	display: none;
+
+	@include tablet {
+		display: block;
+	}
+}
+
+.mobile-reverse {
+	flex-direction: column-reverse;
+
+	@include tablet {
+		flex-direction: row;
+	}
+}
