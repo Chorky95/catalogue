@@ -3,9 +3,6 @@ import limitString from '@/app/utilities/limitString';
 import Image from 'next/image';
 
 export default function Product({product} : {product: ProductType}) {
-
-    console.log(product)
-
     return (
         <div className="products__item">
             {product.thumbnail && 

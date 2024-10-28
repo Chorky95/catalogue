@@ -3,6 +3,24 @@
 .products {
     margin: 100px 0;
 
+    &__filter {
+        // margin-bottom: 10px;
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+
+        &__label {
+            font-size: $fs-18;
+            font-family: $ff-primary;
+            margin-right: 10px;
+        }
+
+        &__categories,
+        &__price {
+            width: 100%;
+        }
+    }
+
     &__item {
         display: flex;
         flex-direction: column;
