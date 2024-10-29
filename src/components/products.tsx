@@ -5,15 +5,22 @@ import { ProductCategory } from '@/app/types/ProductCategoryType';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Pagination from '@mui/material/Pagination';
 import getMinMax from '@/app/utilities/getMinMax';
 
 export default function Products () {
     const [products, setProducts] = useState([] as ProductType[])
     const [productCategories, setProductCategories] = useState([] as ProductCategory[])
     const [displayedProducts, setDisplayedProducts] = useState([] as ProductType[])
-    const [category, setCategory] = useState('')
-    const [priceRange, setPriceRange] = useState('')
+    const [category, setCategory] = useState('' as string)
+    const [priceRange, setPriceRange] = useState('' as string)
+    const [sorting, setSorting] = useState('' as string)
+    const [search, setSearch] = useState('' as string)
+    const [numberOfPages, setNumberOfPages] = useState(1 as number)
+    const [currentPage, setCurrentPage] = useState(1 as number)
+    const pageSize : number = 20
     
     const getProducts = async () => {
       try {
@@ -50,82 +57,164 @@ export default function Products () {
       setPriceRange(event.target.value as string)
     }
 
+    const changeSorting = (event: SelectChangeEvent) => {
+      setSorting(event.target.value as string)
+    }
+
+    const applySearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(event.target.value as string)
+    }
+
+    const changePage = (event: React.ChangeEvent<unknown>, page: number) => {
+      setCurrentPage(page)
+    }
+
     const getNewProducts = () => {
       let newPriceRange = getMinMax(priceRange)
       let newProducts = products.filter((product) => {
-        if((product.category == category || category == '') && (priceRange == '' || ((product.price <= newPriceRange.max) && (product.price >= newPriceRange.min)))) {
+        if((product.category == category || category == '') 
+          && (priceRange == '' || ((product.price <= newPriceRange.max) && (product.price >= newPriceRange.min))) 
+          && (search == '' || (product.title.toLowerCase().includes(search.toLowerCase())))) {
           return product
         }
       })
 
+      if(sorting == 'price-lower') {
+        newProducts.sort((a, b) => a.price - b.price)
+      } else if(sorting == 'price-higher') {
+        newProducts.sort((a, b) => b.price - a.price)
+      } else if(sorting == 'a-z') {
+        newProducts.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+      } else if(sorting == 'z-a') {
+        newProducts.sort((a, b) => b.title.toLowerCase().localeCompare(a.title.toLowerCase()));
+      }
+
       setDisplayedProducts(newProducts)
+      setCurrentPage(1)
+      setNumberOfPages(Math.floor(displayedProducts.length / 20))
     }
+
+    const getAnotherPage = () => {
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const newProducts = displayedProducts.slice(startIndex, endIndex);
+      setDisplayedProducts(newProducts)
+    } 
 
     useEffect(() => {
       getCategories()
       getProducts()
       setDisplayedProducts(products)
+
+      setNumberOfPages(Math.floor(products.length / 20))
     }, [])
   
     useEffect(() => {
       getNewProducts()
+    
+    }, [category, priceRange, sorting, search]);
 
-    }, [category, priceRange]);
+    // useEffect(() => {
+      
+    // }, [displayedProducts])
+
+    useEffect(() => {
+      getAnotherPage()
+    }, [currentPage])
 
     return (
         <section className='products'>
-            <div className="row">
-              <div className="col-xs-4 col-sm-4 col-no-vertical-padd">
                 <div className="products__filter">
-                  <div className="products__filter__categories">
-                    <FormControl fullWidth>
-                      <InputLabel id="category">Category</InputLabel>
-                      <Select
-                        labelId="category"
-                        id="product-category-select"
-                        value={category}
-                        label="Category"
-                        onChange={changeCategory}
-                        placeholder='Category'
-                      >
-                        <MenuItem value={''}>Any</MenuItem>
-                        {productCategories && productCategories.length > 0 && productCategories.map((category, index) => (
-                          <MenuItem value={category.slug} key={index}>{category.name}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                  <div className="row">
+                    <div className="col-xs-12 col-sm-3">
+                      <div className="products__filter__search">
+                        <TextField id="outlined-basic" label="Search" variant="outlined" value={search} onInput={applySearch} />
+                      </div>
+                    </div>
+                    <div className="col-xs-12 col-sm-3">
+                      <div className="products__filter__categories">
+                        <FormControl fullWidth>
+                          <InputLabel id="category">Category</InputLabel>
+                          <Select
+                            labelId="category"
+                            id="product-category-select"
+                            value={category}
+                            label="Category"
+                            onChange={changeCategory}
+                            placeholder='Category'
+                          >
+                            <MenuItem value={''}>Any</MenuItem>
+                            {productCategories && productCategories.length > 0 && productCategories.map((category, index) => (
+                              <MenuItem value={category.slug} key={index}>{category.name}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </div>
+                    </div>
+                    <div className="col-xs-12 col-sm-3">
+                        <div className="products__filter__price">
+                          <FormControl fullWidth>
+                            <InputLabel id="price">Price</InputLabel>
+                            <Select
+                              labelId="price"
+                              id="product-price-select"
+                              value={priceRange}
+                              label="Price"
+                              onChange={changePriceRange}
+                              placeholder='Price'
+                            >
+                              <MenuItem value={''}>Any</MenuItem>
+                              <MenuItem value={'10 - 50'}>10€ - 50€</MenuItem>
+                              <MenuItem value={'50 - 100'}>50€ - 100€</MenuItem>
+                              <MenuItem value={'100 - 200'}>100€ - 200€</MenuItem>
+                              <MenuItem value={'200 - 500'}>200€ - 500€</MenuItem>
+                              <MenuItem value={'500 - 99999999999999'}>500€+</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </div> 
+                    </div>
+                    <div className="col-xs-12 col-sm-3">
+                      <div className="products__filter__sort">
+                        <FormControl fullWidth>
+                          <InputLabel id="sort">Sort</InputLabel>
+                          <Select
+                            labelId="sort"
+                            id="product-sort-select"
+                            value={sorting}
+                            label="Sort"
+                            onChange={changeSorting}
+                            placeholder='Sort'
+                          >
+                            <MenuItem value={''}>No sorting</MenuItem>
+                            <MenuItem value={'price-lower'}>Price: Lower first</MenuItem>
+                            <MenuItem value={'price-higher'}>Price: Higher first</MenuItem>
+                            <MenuItem value={'a-z'}>Name: A to Z</MenuItem>
+                            <MenuItem value={'z-a'}>Name: Z to A</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </div>
+                    </div>
                   </div>
-                  <div className="products__filter__price">
-                    <FormControl fullWidth>
-                      <InputLabel id="price">Price</InputLabel>
-                      <Select
-                        labelId="price"
-                        id="product-price-select"
-                        value={priceRange}
-                        label="Price"
-                        onChange={changePriceRange}
-                        placeholder='Price'
-                      >
-                        <MenuItem value={''}>Any</MenuItem>
-                        <MenuItem value={'10 - 50'}>10€ - 50€</MenuItem>
-                        <MenuItem value={'50 - 100'}>50€ - 100€</MenuItem>
-                        <MenuItem value={'100 - 200'}>100€ - 200€</MenuItem>
-                        <MenuItem value={'200 - 500'}>200€ - 500€</MenuItem>
-                        <MenuItem value={'500 - 99999999999999'}>500€+</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </div>
-                </div>
               </div>
-            </div>
             <div className="row">
-                {displayedProducts && displayedProducts.length > 0 && displayedProducts.map((product, index) => (
+                {displayedProducts && displayedProducts.length > 0 ? displayedProducts.map((product, index) => (
                     <div className="col-xs-12 col-sm-6 col-md-3" key={index}>
                         <Product 
                            product={product}
                         />
                     </div>
-                ))}  
+                )) :
+                  <div className="col-xs-12">
+                    <h4 className="products__no-matches">
+                      No products match your criteria...
+                    </h4>
+                </div>
+                } 
+                {numberOfPages > 0 && 
+                  <div className="col-xs-12">
+                    <Pagination count={numberOfPages} variant="outlined" shape="rounded" page={currentPage} onChange={changePage} />
+                  </div>
+                }
             </div>
         </section>
     )

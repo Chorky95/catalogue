@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
         port: '',
       },
     ],
-  }
+  },
+  sassOptions: {
+    silenceDeprecations: ['legacy-js-api'],
+  },
 };
 
 export default nextConfig;

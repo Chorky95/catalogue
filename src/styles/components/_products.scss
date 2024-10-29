@@ -16,8 +16,16 @@
         }
 
         &__categories,
-        &__price {
+        &__price,
+        &__sort,
+        &__search {
             width: 100%;
+        }
+
+        &__search {
+            div {
+                width: 100%;
+            }
         }
     }
 
@@ -82,5 +90,12 @@
             line-height: $lh-16;
             font-weight: $fw-regular;
         }
+    }
+
+    &__no-matches {
+        text-align: center;
+        font-size: $fs-32;
+        font-family: $ff-secondary;
+        margin-top: 50px;
     }
 }
