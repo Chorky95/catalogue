@@ -8,31 +8,43 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Pagination from '@mui/material/Pagination';
+import CircularProgress from '@mui/material/CircularProgress';
 import getMinMax from '@/app/utilities/getMinMax';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function Products () {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
     const [products, setProducts] = useState([] as ProductType[])
     const [productCategories, setProductCategories] = useState([] as ProductCategory[])
     const [displayedProducts, setDisplayedProducts] = useState([] as ProductType[])
+    const [pagedProducts, setPagedProducts] = useState([] as ProductType[])
     const [category, setCategory] = useState('' as string)
     const [priceRange, setPriceRange] = useState('' as string)
     const [sorting, setSorting] = useState('' as string)
     const [search, setSearch] = useState('' as string)
     const [numberOfPages, setNumberOfPages] = useState(1 as number)
-    const [currentPage, setCurrentPage] = useState(1 as number)
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') ?? '1') as number)
+    const [searching, setSearching] = useState(false as boolean)
     const pageSize : number = 20
     
     const getProducts = async () => {
+      setSearching(true)
       try {
-        const res = await fetch('https://dummyjson.com/products?limit=0');
+        const res = await fetch('https://dummyjson.com/products?limit=0')
         if (!res.ok) {
-          throw new Error('Failed to fetch products');
+          setSearching(false)
+          throw new Error('Failed to fetch products')
         }
-        const data = await res.json();
-        setProducts(data.products);
+        const data = await res.json()
+        setProducts(data.products)
         setDisplayedProducts(data.products)
+        setNumberOfPages(Math.floor(data.products.length / 20))
+        setSearching(false)
       } catch (error) {
-        console.error('Error fetching products:', error);
+        setSearching(false)
+        console.error('Error fetching products:', error)
       }
     }
 
@@ -69,7 +81,8 @@ export default function Products () {
       setCurrentPage(page)
     }
 
-    const getNewProducts = () => {
+    const getnewProducts = () => {
+      setSearching(true)
       let newPriceRange = getMinMax(priceRange)
       let newProducts = products.filter((product) => {
         if((product.category == category || category == '') 
@@ -90,15 +103,18 @@ export default function Products () {
       }
 
       setDisplayedProducts(newProducts)
+      setNumberOfPages(Math.floor(newProducts.length / pageSize))
       setCurrentPage(1)
-      setNumberOfPages(Math.floor(displayedProducts.length / 20))
+      let shownProducts = newProducts.slice(0, 20)
+      setPagedProducts(shownProducts)
+      setSearching(false)
     }
 
     const getAnotherPage = () => {
-      const startIndex = (currentPage - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-      const newProducts = displayedProducts.slice(startIndex, endIndex);
-      setDisplayedProducts(newProducts)
+      const startIndex = (currentPage - 1) * pageSize
+      const endIndex = startIndex + pageSize
+      const newProducts = displayedProducts.slice(startIndex, endIndex)
+      setPagedProducts(newProducts)
     } 
 
     useEffect(() => {
@@ -106,17 +122,14 @@ export default function Products () {
       getProducts()
       setDisplayedProducts(products)
 
-      setNumberOfPages(Math.floor(products.length / 20))
+      setNumberOfPages(Math.floor(products.length / pageSize))
     }, [])
   
     useEffect(() => {
-      getNewProducts()
+      getnewProducts()
     
-    }, [category, priceRange, sorting, search]);
-
-    // useEffect(() => {
-      
-    // }, [displayedProducts])
+    }, [category, priceRange, sorting, search, products]);
+    
 
     useEffect(() => {
       getAnotherPage()
@@ -164,7 +177,7 @@ export default function Products () {
                               placeholder='Price'
                             >
                               <MenuItem value={''}>Any</MenuItem>
-                              <MenuItem value={'10 - 50'}>10€ - 50€</MenuItem>
+                              <MenuItem value={'0 - 50'}>0€ - 50€</MenuItem>
                               <MenuItem value={'50 - 100'}>50€ - 100€</MenuItem>
                               <MenuItem value={'100 - 200'}>100€ - 200€</MenuItem>
                               <MenuItem value={'200 - 500'}>200€ - 500€</MenuItem>
@@ -197,23 +210,33 @@ export default function Products () {
                   </div>
               </div>
             <div className="row">
-                {displayedProducts && displayedProducts.length > 0 ? displayedProducts.map((product, index) => (
-                    <div className="col-xs-12 col-sm-6 col-md-3" key={index}>
-                        <Product 
-                           product={product}
-                        />
-                    </div>
-                )) :
+                {searching ? 
                   <div className="col-xs-12">
-                    <h4 className="products__no-matches">
-                      No products match your criteria...
-                    </h4>
-                </div>
-                } 
-                {numberOfPages > 0 && 
-                  <div className="col-xs-12">
-                    <Pagination count={numberOfPages} variant="outlined" shape="rounded" page={currentPage} onChange={changePage} />
+                    <div className="spinner">
+                      <CircularProgress />
+                    </div>   
                   </div>
+                : 
+                <>
+                  {pagedProducts && pagedProducts.length > 0 ? pagedProducts.map((product, index) => (
+                      <div className="col-xs-12 col-sm-6 col-md-3" key={index}>
+                          <Product 
+                            product={product}
+                          />
+                      </div>
+                  )) :
+                    <div className="col-xs-12">
+                      <h4 className="products__no-matches">
+                        No products match your criteria...
+                      </h4>
+                  </div>
+                  } 
+                  {numberOfPages > 0 && 
+                    <div className="col-xs-12">
+                      <Pagination count={numberOfPages} variant="outlined" shape="rounded" page={currentPage} onChange={changePage} />
+                    </div>
+                  }
+                </>
                 }
             </div>
         </section>
