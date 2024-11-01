@@ -1,0 +1,21 @@
+@use '../variables' as *;
+
+.MuiPagination-root {
+    display: flex;
+    justify-content: center;
+
+    ul {
+        li {
+            button {
+                border-color: $c-5;
+                background-color: $c-2;
+                color: $c-1;
+
+                &.Mui-selected {
+                    background-color: $c-5;
+                    color: $c-2;
+                }
+            } 
+        }
+    }
+}

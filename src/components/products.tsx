@@ -24,9 +24,9 @@ export default function Products () {
     const [priceRange, setPriceRange] = useState('' as string)
     const [sorting, setSorting] = useState('' as string)
     const [search, setSearch] = useState('' as string)
-    const [numberOfPages, setNumberOfPages] = useState(1 as number)
+    const [numberOfPages, setNumberOfPages] = useState(0 as number)
     const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') ?? '1') as number)
-    const [searching, setSearching] = useState(false as boolean)
+    const [searching, setSearching] = useState(true as boolean)
     const pageSize : number = 20
     
     const getProducts = async () => {
@@ -107,7 +107,9 @@ export default function Products () {
       setCurrentPage(1)
       let shownProducts = newProducts.slice(0, 20)
       setPagedProducts(shownProducts)
-      setSearching(false)
+      setTimeout(() => {
+        setSearching(false)
+      }, 500);
     }
 
     const getAnotherPage = () => {

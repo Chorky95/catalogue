@@ -52,24 +52,24 @@ export default function Product({product} : {product: ProductType}) {
                 Info
             </p>
             {showModal && 
-                <div className="products__modal">
+                <div className="products__modal blurred">
                     <div className="row">
                         <div className="col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-3 col-md-6">
                             <div className="products__modal__container">
-                                <div className="products__modal__close"></div>
+                                <div className="products__modal__close" onClick={hideInfo}></div>
                                 <div className="products__modal__main-data">
                                     <div className="products__modal__info">
                                         <h3 className="products__modal__title">
                                             {product.title}
                                         </h3> 
                                         <p className="products__modal__price">
-                                            {product.price}
+                                            {product.price}€
                                         </p>
                                         <p className="products__modal__description">
                                             {product.description}
                                         </p>
                                     </div>  
-                                    <div className="producst__modal__image">
+                                    <div className="products__modal__image">
                                         <Image
                                             src={product.thumbnail}
                                             alt={product.title}
