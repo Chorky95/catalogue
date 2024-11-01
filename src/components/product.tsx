@@ -42,11 +42,6 @@ export default function Product({product} : {product: ProductType}) {
         document.querySelector('body')?.classList.remove('no-scroll')
     }
 
-
-    useEffect(() => {
-        console.log(cart)
-	}, [cart]);
-
     return (
         <div className="products__item">
             {product.thumbnail && 
