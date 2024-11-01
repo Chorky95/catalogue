@@ -1,10 +1,36 @@
 import type { Product as ProductType} from '@/app/types/ProductType';
 import limitString from '@/app/utilities/limitString';
+import { CartContext } from '@/context/cartContext';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 export default function Product({product} : {product: ProductType}) {
     const [showModal, setShowModal] = useState(false as boolean)
+    const [cartNotification, setCartNotification] = useState({show : false, message: null} as {show: boolean, message: string|null})
+    const cartContext = useContext(CartContext);
+
+    if (!cartContext) {
+      throw new Error("No CartContext!");
+    }
+  
+    const { cart, addToCart, removeFromCart, clearCart } = cartContext;
+
+    const addItemToCart = (item : {id: number, name: string, quantity: number, price: number}) => {
+        addToCart(item)
+        showCartNotification('Added to cart!')
+    }
+
+    const removeItemFromCart = (itemId : number) => {
+        removeFromCart(itemId)
+        showCartNotification('Removed from cart!')
+    }
+
+    const showCartNotification = (message = '' as string) => {
+        setCartNotification({show: true, message: message})
+        setTimeout(() => {
+            setCartNotification({show: false, message: null})
+        }, 2000)
+    }
 
     const showInfo = () => {
         setShowModal(true)
@@ -15,6 +41,11 @@ export default function Product({product} : {product: ProductType}) {
         setShowModal(false)
         document.querySelector('body')?.classList.remove('no-scroll')
     }
+
+
+    useEffect(() => {
+        console.log(cart)
+	}, [cart]);
 
     return (
         <div className="products__item">
@@ -48,7 +79,7 @@ export default function Product({product} : {product: ProductType}) {
                     {limitString(product.description)}
                 </p>
             }
-            <p className="products__item__button" onClick={showInfo}>
+            <p className="products__item__button button" onClick={showInfo}>
                 Info
             </p>
             {showModal && 
@@ -120,6 +151,19 @@ export default function Product({product} : {product: ProductType}) {
                                             {product.weight}
                                         </p>
                                     </div>
+                                    <button className='products__add-to-cart button' onClick={() => {addItemToCart({id: product.id, name: product.title, quantity: 1, price: product.price})}}>
+                                        Add to cart
+                                    </button>
+                                    {cart.find(cartItem => cartItem.id === product.id) && 
+                                        <button className='products__remove-from-cart button' onClick={() => {removeItemFromCart(product.id)}}>
+                                            Remove from cart
+                                        </button>
+                                    }
+                                    {cartNotification.show && cartNotification.message && 
+                                        <p className="products__cart-notification">
+                                            {cartNotification.message}
+                                        </p>
+                                    }
                                 </div>
                             </div>
                         </div>
