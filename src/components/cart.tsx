@@ -1,5 +1,5 @@
 import { CartContext } from '@/context/cartContext'
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext} from 'react'
 import Image from 'next/image'
 import CartIcon from '../images/cartIcon'
 
