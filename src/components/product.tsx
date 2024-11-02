@@ -1,21 +1,21 @@
-import type { Product as ProductType} from '@/app/types/ProductType';
-import limitString from '@/app/utilities/limitString';
-import { CartContext } from '@/context/cartContext';
-import Image from 'next/image';
-import { useState, useEffect, useContext } from 'react';
+import type { Product as ProductType} from '@/app/types/ProductType'
+import limitString from '@/app/utilities/limitString'
+import { CartContext } from '@/context/cartContext'
+import Image from 'next/image'
+import { useState, useContext } from 'react'
 
 export default function Product({product} : {product: ProductType}) {
     const [showModal, setShowModal] = useState(false as boolean)
     const [cartNotification, setCartNotification] = useState({show : false, message: null} as {show: boolean, message: string|null})
-    const cartContext = useContext(CartContext);
+    const cartContext = useContext(CartContext)
 
     if (!cartContext) {
-      throw new Error("No CartContext!");
+      throw new Error("No CartContext!")
     }
   
-    const { cart, addToCart, removeFromCart, clearCart } = cartContext;
+    const { cart, addToCart, removeFromCart, clearCart } = cartContext
 
-    const addItemToCart = (item : {id: number, name: string, quantity: number, price: number}) => {
+    const addItemToCart = (item : {id: number, name: string, quantity: number, price: number, image: string}) => {
         addToCart(item)
         showCartNotification('Added to cart!')
     }
@@ -146,7 +146,7 @@ export default function Product({product} : {product: ProductType}) {
                                             {product.weight}
                                         </p>
                                     </div>
-                                    <button className='products__add-to-cart button' onClick={() => {addItemToCart({id: product.id, name: product.title, quantity: 1, price: product.price})}}>
+                                    <button className='products__add-to-cart button' onClick={() => {addItemToCart({id: product.id, name: product.title, quantity: 1, price: product.price, image: product.thumbnail})}}>
                                         Add to cart
                                     </button>
                                     {cart.find(cartItem => cartItem.id === product.id) && 
