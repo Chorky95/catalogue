@@ -1,22 +1,20 @@
 'use client'
-import { useEffect, useState } from 'react';
-import type { Product as ProductType } from '@/app/types/ProductType';
-import Product from './product';
-import { ProductCategory } from '@/app/types/ProductCategoryType';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Pagination from '@mui/material/Pagination';
-import CircularProgress from '@mui/material/CircularProgress';
-import getMinMax from '@/app/utilities/getMinMax';
-import { useSearchParams } from 'next/navigation';
-import { CartProvider } from '@/context/cartContext';
-import Cart from './cart';
+import { useEffect, useState } from 'react'
+import type { Product as ProductType } from '@/app/types/ProductType'
+import Product from './product'
+import { ProductCategory } from '@/app/types/ProductCategoryType'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import TextField from '@mui/material/TextField'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import Pagination from '@mui/material/Pagination'
+import CircularProgress from '@mui/material/CircularProgress'
+import getMinMax from '@/app/utilities/getMinMax'
+import { CartProvider } from '@/context/cartContext'
+import Cart from './cart'
 
 export default function Products({ items = [], categories = [] }: { items: ProductType[], categories: ProductCategory[] }) {
-	const searchParams = useSearchParams()
 	const pageSize: number = 20
 	const [products, setProducts] = useState(items as ProductType[])
 	const [productCategories, setProductCategories] = useState(categories as ProductCategory[])
@@ -27,7 +25,7 @@ export default function Products({ items = [], categories = [] }: { items: Produ
 	const [sorting, setSorting] = useState('' as string)
 	const [search, setSearch] = useState('' as string)
 	const [numberOfPages, setNumberOfPages] = useState(items.length / pageSize as number)
-	const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') ?? '1') as number)
+	const [currentPage, setCurrentPage] = useState(0 as number)
 	const [searching, setSearching] = useState(true as boolean)
 
 	const changeCategory = (event: SelectChangeEvent) => {
@@ -66,9 +64,9 @@ export default function Products({ items = [], categories = [] }: { items: Produ
 		} else if (sorting == 'price-higher') {
 			newProducts.sort((a, b) => b.price - a.price)
 		} else if (sorting == 'a-z') {
-			newProducts.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+			newProducts.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
 		} else if (sorting == 'z-a') {
-			newProducts.sort((a, b) => b.title.toLowerCase().localeCompare(a.title.toLowerCase()));
+			newProducts.sort((a, b) => b.title.toLowerCase().localeCompare(a.title.toLowerCase()))
 		}
 
 		setDisplayedProducts(newProducts)
@@ -78,7 +76,7 @@ export default function Products({ items = [], categories = [] }: { items: Produ
 		setPagedProducts(shownProducts)
 		setTimeout(() => {
 			setSearching(false)
-		}, 500);
+		}, 500)
 	}
 
 	const getAnotherPage = () => {
@@ -95,7 +93,7 @@ export default function Products({ items = [], categories = [] }: { items: Produ
 
 	useEffect(() => {
 		getnewProducts()
-	}, [category, priceRange, sorting, search, products]);
+	}, [category, priceRange, sorting, search, products])
 
 	useEffect(() => {
 		getAnotherPage()
@@ -199,7 +197,7 @@ export default function Products({ items = [], categories = [] }: { items: Produ
 									</h4>
 								</div>
 							}
-							{numberOfPages > 0 &&
+							{numberOfPages > 0 && currentPage != 0 &&
 								<div className="col-xs-12">
 									<Pagination count={numberOfPages} variant="outlined" shape="rounded" page={currentPage} onChange={changePage} />
 								</div>
